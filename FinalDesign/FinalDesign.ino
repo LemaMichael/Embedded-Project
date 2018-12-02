@@ -4,41 +4,54 @@
 * Program:  http://learn.parallax.com/KickStart
  */
 
-#define SIG PB3  // Signal pin (Pin 11)
 
-const int pingPin = 11;
-const int vibratePin = 7;
+// Using two PING Sensors
+const int signalPins[] = {10, 11}; // Left and right Signal Pins
+const int vibratorPins[] = {6, 7}; // Left and right Vibrator Motor Pins
+char *pingName[] = {"Left", "Right"};
 unsigned int duration, inches;
 
 void setup()
 {
     Serial.begin(9600);
+    
+    // VIBRATION MOTOR
+     pinMode(6, OUTPUT);
+     pinMode(7, OUTPUT);
 }
 
-void checkDistance(int inches) {
+void checkDistance(int inches, int index) {
     if (inches < 11) {
-        digitalWrite(vibratePin, HIGH);
-        Serial.println("Vibration On");
+        digitalWrite(vibratorPins[index], HIGH);
+        Serial.print(pingName[index]);
+        Serial.println(" Vibrator is On");
     } else {
-        digitalWrite(vibratePin, LOW);
-        Serial.println("Vibration Off");
+        digitalWrite(vibratorPins[index], LOW);
+        Serial.print(pingName[index]);
+        Serial.println(" Vibrator is Off");
     }
+ }
+
+
+// PING
+void ping(int index) {
+    pinMode(signalPins[index], OUTPUT); // Set pin to OUTPUT
+    digitalWrite(signalPins[index], LOW); // Ensure pin is low
+    delayMicroseconds(2);
+    digitalWrite(signalPins[index], HIGH); // Start ranging
+    delayMicroseconds(5); // With 5 microsecond burst
+    digitalWrite(signalPins[index], LOW); // End Ranging
+    pinMode(signalPins[index], INPUT); //  Set pin to INPUT
+    duration = pulseIn(signalPins[index], HIGH); // Read echo pulse
+    inches = duration / 74 / 2; // Convert to inches
+    checkDistance(inches, index);
+    Serial.println(inches); // Display Result
+    delay(50); // Short Delay
 }
 
 void loop() {
-    DDRB |= (1<<SIG); // Set PB3 to OUTPUT PIN.
-    PORTB &= ~(1<<SIG); // Ensure pin is low.
-    delayMicroseconds(2);
-    PORTB |= (1<<SIG); // Start ranging.
-    delayMicroseconds(5); // With 5 microsecond burst
-    PORTB &= ~(1<<SIG); // End Ranging
-    DDRB &= ~(1<<SIG); // Set pin to INPUT
-    duration = pulseIn(pingPin, HIGH); // Read echo pulse
-    inches = duration / 74 / 2; // Convert to inches
-    checkDistance(inches);
-    Serial.println(inches); // Display Result
-    delay(200); // Short Delay
-    
-    // VIBRATION MOTOR
-    pinMode(vibratePin, OUTPUT);
+  for (int i = 0; i < 2; i++) {
+    ping(i);
+  }
+ 
 }
