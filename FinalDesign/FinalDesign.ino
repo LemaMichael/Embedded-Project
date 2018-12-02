@@ -8,7 +8,7 @@
 // Using two PING Sensors
 const int signalPins[] = {10, 11}; // Left and right Signal Pins
 const int vibratorPins[] = {6, 7}; // Left and right Vibrator Motor Pins
-char *pingName[] = {"Left", "Right"};
+char *pingName[] = {"Left ", "Right "};
 unsigned int duration, inches;
 
 void setup()
@@ -21,14 +21,14 @@ void setup()
 }
 
 void checkDistance(int inches, int index) {
-    if (inches < 11) {
+    if (inches < 12) {
         digitalWrite(vibratorPins[index], HIGH);
         Serial.print(pingName[index]);
-        Serial.println(" Vibrator is On");
+        Serial.print("Vibrator is ON: ");
     } else {
         digitalWrite(vibratorPins[index], LOW);
         Serial.print(pingName[index]);
-        Serial.println(" Vibrator is Off");
+        Serial.print("Vibrator is OFF: ");
     }
  }
 
@@ -45,7 +45,8 @@ void ping(int index) {
     duration = pulseIn(signalPins[index], HIGH); // Read echo pulse
     inches = duration / 74 / 2; // Convert to inches
     checkDistance(inches, index);
-    Serial.println(inches); // Display Result
+    Serial.print(inches); // Display Result
+    Serial.println(" inches");
     delay(50); // Short Delay
 }
 
