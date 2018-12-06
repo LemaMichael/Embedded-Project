@@ -53,7 +53,6 @@ void loop() {
     Serial.print("=");
     Serial.print(sonar[i].ping_in());
     Serial.print("inch ");
-    digitalWrite(vibratorPins[i], LOW);
     checkDistance(sonar[i].ping_in(), i);
   }
   Serial.println();
