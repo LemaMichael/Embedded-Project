@@ -47,7 +47,7 @@ void ping(int index) {
     checkDistance(inches, index);
     Serial.print(inches); // Display Result
     Serial.println(" inches");
-    delay(50); // Short Delay
+    delay(500); // Short Delay
 }
 
 void loop() {
