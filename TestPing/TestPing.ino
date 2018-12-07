@@ -7,7 +7,8 @@
 #define SONAR_NUM 3      // Number of sensors.
 #define MAX_DISTANCE 400 // Maximum distance (in cm) to ping.
 
-const int vibratorPins[] = {5, 7}; // Left and right Vibrator Motor Pins
+const int vibratorPins[2] = {5, 7}; // Left and right Vibrator Motor Pins
+unsigned int inches;
 
 
 NewPing sonar[SONAR_NUM] = {   // Sensor object array.
@@ -18,24 +19,20 @@ NewPing sonar[SONAR_NUM] = {   // Sensor object array.
 };
 
 void checkDistance(int inches, int index) {
-  if (index != 2) {
-    // Left and right Sensor
-    if (inches < 7){
-      digitalWrite(vibratorPins[index], HIGH);
-    } else {
+  if (inches < 10 && index != 2) {
+       digitalWrite(vibratorPins[index], HIGH);
+  } else {
       digitalWrite(vibratorPins[index], LOW);
-    }
-    
-  } else { 
-    // Front sensor
-    if (inches < 7) {
-      digitalWrite(5, HIGH);
-      digitalWrite(7, HIGH);
-    } else {
-      digitalWrite(5, LOW);
-      digitalWrite(7, LOW);
-    }
+  } 
+
+  if (inches < 10 && index == 2) {
+    digitalWrite(5, HIGH);
+    digitalWrite(7, HIGH);
+  } else if (inches > 10 && index == 2){
+    digitalWrite(5, LOW);
+    digitalWrite(7, LOW);
   }
+
 }
 
 void setup() {
@@ -48,12 +45,13 @@ void setup() {
 
 void loop() { 
   for (int i = 0; i < SONAR_NUM; i++) { // Loop through each sensor and display results.
-    delay(50); // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
     Serial.print(i);
     Serial.print("=");
-    Serial.print(sonar[i].ping_in());
+    inches = sonar[i].ping_in();
+    Serial.print(inches);
     Serial.print("inch ");
-    checkDistance(sonar[i].ping_in(), i);
+    checkDistance(inches, i);
+    delay(120); 
   }
   Serial.println();
 }
