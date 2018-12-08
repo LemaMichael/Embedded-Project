@@ -1,58 +1,57 @@
-/*
-* Reference: https://www.parallax.com/sites/default/files/downloads/28015-PING-Sensor-Product-Guide-v2.0.pdf
-* Note: Cannot accurately measure the distance to an object that is more than 3 meters away
-* Program:  http://learn.parallax.com/KickStart
- */
+// ---------------------------------------------------------------------------
+// Example NewPing library sketch that pings 3 sensors 20 times a second.
+// ---------------------------------------------------------------------------
+
+#include <NewPing.h>
+
+#define SONAR_NUM 3      // Number of sensors.
+#define MAX_DISTANCE 400 // Maximum distance (in cm) to ping.
+
+const int vibratorPins[2] = {5, 7}; // Left and right Vibrator Motor Pins
+unsigned int inches;
 
 
-// Using two PING Sensors
-const int signalPins[] = {10, 11}; // Left and right Signal Pins
-const int vibratorPins[] = {6, 7}; // Left and right Vibrator Motor Pins
-char *pingName[] = {"Left ", "Right "};
-unsigned int duration, inches;
+NewPing sonar[SONAR_NUM] = {   // Sensor object array.
+  NewPing(9, 9, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping. 
+  NewPing(10, 10, MAX_DISTANCE), 
+  NewPing(11, 12, MAX_DISTANCE) 
 
-void setup()
-{
-    Serial.begin(9600);
-    
-    // VIBRATION MOTOR
-     pinMode(6, OUTPUT);
-     pinMode(7, OUTPUT);
-}
+};
 
 void checkDistance(int inches, int index) {
-    if (inches < 12) {
-        digitalWrite(vibratorPins[index], HIGH);
-        Serial.print(pingName[index]);
-        Serial.print("Vibrator is ON: ");
-    } else {
-        digitalWrite(vibratorPins[index], LOW);
-        Serial.print(pingName[index]);
-        Serial.print("Vibrator is OFF: ");
-    }
- }
+  if (inches < 10 && index != 2) {
+       digitalWrite(vibratorPins[index], HIGH);
+  } else {
+      digitalWrite(vibratorPins[index], LOW);
+  } 
 
+  if (inches < 10 && index == 2) {
+    digitalWrite(5, HIGH);
+    digitalWrite(7, HIGH);
+  } else if (inches > 10 && index == 2){
+    digitalWrite(5, LOW);
+    digitalWrite(7, LOW);
+  }
 
-// PING
-void ping(int index) {
-    pinMode(signalPins[index], OUTPUT); // Set pin to OUTPUT
-    digitalWrite(signalPins[index], LOW); // Ensure pin is low
-    delayMicroseconds(2);
-    digitalWrite(signalPins[index], HIGH); // Start ranging
-    delayMicroseconds(5); // With 5 microsecond burst
-    digitalWrite(signalPins[index], LOW); // End Ranging
-    pinMode(signalPins[index], INPUT); //  Set pin to INPUT
-    duration = pulseIn(signalPins[index], HIGH); // Read echo pulse
-    inches = duration / 74 / 2; // Convert to inches
-    checkDistance(inches, index);
-    Serial.print(inches); // Display Result
-    Serial.println(" inches");
-    delay(500); // Short Delay
 }
 
-void loop() {
-  for (int i = 0; i < 2; i++) {
-    ping(i);
+void setup() {
+  Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
+
+  // VIBRATION MOTOR
+  pinMode(5, OUTPUT);
+  pinMode(7, OUTPUT);
+}
+
+void loop() { 
+  for (int i = 0; i < SONAR_NUM; i++) { // Loop through each sensor and display results.
+    Serial.print(i);
+    Serial.print("=");
+    inches = sonar[i].ping_in();
+    Serial.print(inches);
+    Serial.print("inch ");
+    checkDistance(inches, i);
+    delay(120); 
   }
- 
+  Serial.println();
 }
